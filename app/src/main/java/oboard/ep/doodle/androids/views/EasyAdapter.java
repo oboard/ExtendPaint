@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.android.internal.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;

@@ -21,7 +21,7 @@ import kotlin.math.abs
 class PaintView(context: Context?) :
     View(context) {
     private var mPaint = Paint()
-    private val mPathList: MutableList<PathItem?> =
+    public val mPathList: MutableList<PathItem?> =
         ArrayList<PathItem?>() // 保存涂鸦轨迹的集合
     private val mTouchGestureDetector // 触摸手势监听
             : TouchGestureDetector
@@ -42,8 +42,8 @@ class PaintView(context: Context?) :
     var mTouchCentreY = 0f
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) { //view绘制完成时 大小确定
         super.onSizeChanged(width, height, oldw, oldh)
-        val centerWidth: Float
-        val centerHeight: Float
+//        val centerWidth: Float
+//        val centerHeight: Float
         // 1.计算使图片居中的缩放值
 //        if (nw > nh) {
 //            mBitmapScale = 1 / nw
@@ -82,21 +82,20 @@ class PaintView(context: Context?) :
     }
 
     override fun onDraw(canvas: Canvas) {
-        // 画布和图片共用一个坐标系，只需要处理屏幕坐标系到图片（画布）坐标系的映射关系(toX toY)
-        canvas.translate(mTransX, mTransY)
         canvas.scale(mScale, mScale)
+//        canvas.translate(mTransX, mTransY)
 
         // 绘制图片
 //        canvas.drawBitmap(mBitmap, 0f, 0f, null)
         for (path in mPathList) { // 绘制涂鸦轨迹
             canvas.save()
             if (path != null) {
-                canvas.translate(path.mX, path.mY)
+                canvas.translate(path.mX + mTransX / mScale, path.mY + mTransY / mScale)
             } // 根据涂鸦轨迹偏移值，偏移画布使其画在对应位置上
             if (mSelectedPathItem === path) {
                 mPaint.color = Color.YELLOW // 点中的为黄色
             } else {
-                mPaint.color = Color.RED // 其他为红色
+                mPaint.color = path!!.mColor
             }
             if (path != null) {
                 canvas.drawPath(path.mPath, mPaint)
@@ -108,11 +107,11 @@ class PaintView(context: Context?) :
     /**
      * 封装涂鸦轨迹对象
      */
-    private class PathItem {
+    class PathItem {
         var mPath = Path() // 涂鸦轨迹
+        var mColor = Color.RED;
         var mX = 0f
-        var mY // 轨迹偏移值
-                = 0f
+        var mY = 0f // 轨迹偏移值
     }
 
     companion object {
@@ -122,7 +121,7 @@ class PaintView(context: Context?) :
     init {
 
         // 设置画笔
-        mPaint.color = Color.RED
+//        mPaint.color = Color.RED
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeWidth = 20f
         mPaint.isAntiAlias = true
@@ -138,14 +137,12 @@ class PaintView(context: Context?) :
 
                     // 缩放手势操作相关
                     override fun onScaleBegin(detector: ScaleGestureDetectorApi27?): Boolean {
-                        Log.d(TAG, "onScaleBegin: ")
                         mLastFocusX = null
                         mLastFocusY = null
                         return true
                     }
 
                     override fun onScaleEnd(detector: ScaleGestureDetectorApi27?) {
-                        Log.d(TAG, "onScaleEnd: ")
                     }
 
                     override fun onScale(detector: ScaleGestureDetectorApi27): Boolean { // 双指缩放中
@@ -202,11 +199,11 @@ class PaintView(context: Context?) :
                     }
 
                     override fun onScrollBegin(e: MotionEvent) { // 滑动开始
-                        Log.d(TAG, "onScrollBegin: ")
                         val x = toX(e.x)
                         val y = toY(e.y)
                         if (mSelectedPathItem == null) {
                             mCurrentPathItem = PathItem()// 新的涂鸦
+                            mCurrentPathItem!!.mColor = MainActivity.currentColor;
                             mPathList.add(mCurrentPathItem) // 添加的集合中
                             mCurrentPathItem!!.mPath.moveTo(x, y)
                         }
@@ -229,7 +226,6 @@ class PaintView(context: Context?) :
                         distanceX: Float,
                         distanceY: Float
                     ): Boolean { // 滑动中
-                        Log.d(TAG, "onScroll: " + e2.x + " " + e2.y)
                         val x = toX(e2.x)
                         val y = toY(e2.y)
                         if (mSelectedPathItem == null) { // 没有选中的涂鸦
@@ -250,7 +246,6 @@ class PaintView(context: Context?) :
                     }
 
                     override fun onScrollEnd(e: MotionEvent) { // 滑动结束
-                        Log.d(TAG, "onScrollEnd: ")
                         val x = toX(e.x)
                         val y = toY(e.y)
                         if (mSelectedPathItem == null) {
