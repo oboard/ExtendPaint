@@ -13,11 +13,20 @@
         android:theme="@style/FullscreenTheme"
         tools:ignore="AllowBackup,RtlEnabled,UnusedAttribute">
         <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AboutTheme">
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar"/>
+        <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
             android:maxAspectRatio="2.4"
+            android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme"
             tools:targetApi="o">
             <intent-filter>
@@ -26,7 +35,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="android.max_aspect" android:value="2.4" />
+
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
     </application>
 
 </manifest>

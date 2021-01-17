@@ -2,4 +2,8 @@
 <resources>
     <color name="doodle_btn_pressed_color">#ffffd943</color>
     <color name="doodle_btn_border">#88cccccc</color>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="colorDark">#FF424242</color>
 </resources>

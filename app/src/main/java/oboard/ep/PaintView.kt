@@ -3,7 +3,6 @@ package oboard.ep
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import oboard.ep.doodle.androids.ScaleGestureDetectorApi27
@@ -42,6 +41,7 @@ class PaintView(context: Context?) :
     var mTouchCentreY = 0f
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) { //view绘制完成时 大小确定
         super.onSizeChanged(width, height, oldw, oldh)
+
 //        val centerWidth: Float
 //        val centerHeight: Float
         // 1.计算使图片居中的缩放值
@@ -162,6 +162,8 @@ class PaintView(context: Context?) :
                             mScale = 0.1f
                         } else {
                             mScale *= detector.scaleFactor
+//                            mTransX -= toX(mTouchCentreX) * (detector.scaleFactor * detector.scaleFactor - 1)
+//                            mTransY -= toY(mTouchCentreY) * (detector.scaleFactor * detector.scaleFactor - 1)
                         }
 
                         invalidate()

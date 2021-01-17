@@ -12,7 +12,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -22,12 +22,12 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import kotlinx.android.synthetic.main.bottom_sheet.*
-import kotlinx.android.synthetic.main.main_activity.*
 import oboard.ep.ColorPicker.OnColorSelectedListener
-import java.io.UnsupportedEncodingException
-import java.net.URLEncoder
+import oboard.ep.databinding.BottomSheetBinding
+import oboard.ep.databinding.MainActivityBinding
 
+private lateinit var mainActivityBinding: MainActivityBinding
+private lateinit var bottomSheetBinding: BottomSheetBinding
 
 class MainActivity : AppCompatActivity(), Runnable {
     companion object {
@@ -45,12 +45,12 @@ class MainActivity : AppCompatActivity(), Runnable {
 //    private lateinit var mOrientationSensor: Sensor
 
     //    private lateinit var mOrientationListener: MySensorEventListener
+    //    private lateinit var mMagneticListener: MySensorEventListener
+
     private lateinit var mGyroscopeListener: MySensorEventListener
 
-    //    private lateinit var mMagneticListener: MySensorEventListener
     private val mHandler = Handler()
     private lateinit var doodleView: PaintView
-//    private var valueAnimator: ValueAnimator? = null
 
     override fun run() {
 //        if (mDrawPointer != null && !mStopDrawing) {
@@ -63,13 +63,16 @@ class MainActivity : AppCompatActivity(), Runnable {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.main_activity)
+        mainActivityBinding = MainActivityBinding.inflate(layoutInflater)
+        bottomSheetBinding = BottomSheetBinding.bind(mainActivityBinding.coordinatorLayout1.getChildAt(0));
+//        setContentView(binding.root)
+        setContentView(mainActivityBinding.root);
         getNotchParams()
 
 //        window.decorView.systemUiVisibility =
 //            View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         val lp = window.attributes
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             lp.layoutInDisplayCutoutMode =
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
@@ -78,7 +81,8 @@ class MainActivity : AppCompatActivity(), Runnable {
 //        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.thelittleprince2)
 //        val bitmap: Bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.RGB_565)
         doodleView = PaintView(this)
-        container_doodle.addView(
+
+        mainActivityBinding.containerDoodle.addView(
             doodleView,
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -88,31 +92,39 @@ class MainActivity : AppCompatActivity(), Runnable {
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+//
+//        payButton.setOnClickListener {
+//            val intent = Intent(Intent.ACTION_VIEW)
+//            var str = ""
+//            try {
+//                str = "alipays://platformapi/startapp?saId=10000007&qrcode=" + URLEncoder.encode(
+//                    "https://qr.alipay.com/tsx00700h1zpzwoodysyhda",
+//                    "UTF-8"
+//                )
+//            } catch (e: UnsupportedEncodingException) {
+//                e.printStackTrace()
+//            }
+//            //str是支付宝或微信链接，直接在微信里面点击链接，也可调起
+//            val uri = Uri.parse(str)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            intent.data = uri
+//            startActivity(intent)
+//        }
 
-        pay_button.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            var str = ""
-            try {
-                str = "alipays://platformapi/startapp?saId=10000007&qrcode=" + URLEncoder.encode(
-                    "https://qr.alipay.com/tsx00700h1zpzwoodysyhda",
-                    "UTF-8"
-                )
-            } catch (e: UnsupportedEncodingException) {
-                e.printStackTrace()
-            }
-            //str是支付宝或微信链接，直接在微信里面点击链接，也可调起
-            val uri = Uri.parse(str)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.data = uri
+
+        bottomSheetBinding.settingsButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
 
-        delete_button.setOnClickListener{
+
+        bottomSheetBinding.deleteButton.setOnClickListener {
             doodleView.mPathList.clear()
         }
 
 
-        color_picker.setOnColorSelectedListener(object : OnColorSelectedListener {
+        bottomSheetBinding.colorPicker.setOnColorSelectedListener(object : OnColorSelectedListener {
             fun set(red: Int, green: Int, blue: Int) {
                 var value = "红色：$red\t绿色：$green\t蓝色:$blue"
                 val color = Color.rgb(red, green, blue)
@@ -120,10 +132,10 @@ class MainActivity : AppCompatActivity(), Runnable {
              
              颜色值：0x${Integer.toHexString(color)}
              """.trimIndent()
-                color_value_txt.text = value
+                bottomSheetBinding.colorValueTxt.text = value
                 currentColor = color
-                color_indicator.setImageDrawable(ColorDrawable(color))
-                color_indicator.shape = 2
+                bottomSheetBinding.colorIndicator.setImageDrawable(ColorDrawable(color))
+                bottomSheetBinding.colorIndicator.shape = 2
             }
 
             override fun onColorSelecting(red: Int, green: Int, blue: Int) {
@@ -135,7 +147,7 @@ class MainActivity : AppCompatActivity(), Runnable {
             }
         })
         val bottomSheetBehavior: BottomSheetBehavior<*> =
-            BottomSheetBehavior.from(findViewById<View>(R.id.bottom_sheet))
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         //设置默认先隐藏
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
@@ -148,14 +160,14 @@ class MainActivity : AppCompatActivity(), Runnable {
                 //状态变化
             }
         })
-//        menu_button.setOnClickListener {
+//        menuButton.setOnClickListener {
 //            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
 //                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
 //            } else {
 //                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 //            }
 //        }
-//        menu_button.setOnClickListener {
+//        menuButton.setOnClickListener {
         //根据状态不同显示隐藏
 
         //设置监听事件
@@ -194,7 +206,7 @@ class MainActivity : AppCompatActivity(), Runnable {
 //                        "#9EB801", "#BCC200", "#DBBC01"
 //                    )
 //                )
-//                color_picker.setColor(colorArray)
+//                colorPicker.setColor(colorArray)
 //            }
 
 //        }

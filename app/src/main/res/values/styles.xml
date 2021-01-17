@@ -1,18 +1,22 @@
 <resources>
+
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#00000000</item>
-        <item name="colorPrimaryDark">#00000000</item>
-        <item name="colorAccent">#00000000</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="FullscreenTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AboutTheme" parent="AppTheme">\</style>
+
+
+    <style name="FullscreenTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@null</item>
-<!--        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>-->
-<!--        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>-->
+        <!--        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>-->
+        <!--        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>-->
     </style>
 
 </resources>
