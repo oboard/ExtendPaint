@@ -8,7 +8,6 @@ import android.view.View
 import oboard.ep.doodle.androids.ScaleGestureDetectorApi27
 import oboard.ep.doodle.androids.TouchGestureDetector
 import java.util.*
-import kotlin.math.abs
 
 
 /**
@@ -20,7 +19,7 @@ import kotlin.math.abs
 class PaintView(context: Context?) :
     View(context) {
     private var mPaint = Paint()
-    public val mPathList: MutableList<PathItem?> =
+    val mPathList: MutableList<PathItem?> =
         ArrayList<PathItem?>() // 保存涂鸦轨迹的集合
     private val mTouchGestureDetector // 触摸手势监听
             : TouchGestureDetector
@@ -32,13 +31,19 @@ class PaintView(context: Context?) :
             : PathItem? = null
     private var mSelectedPathItem // 选中的涂鸦轨迹
             : PathItem? = null
-    public var mTransX = 0f
-    public var mTransY = 0f
-    public var mScale = 1f
-    var mLastFocusX: Float? = null
-    var mLastFocusY: Float? = null
-    var mTouchCentreX = 0f
-    var mTouchCentreY = 0f
+    var mTransX = 0f
+    var mTransY = 0f
+    private var mScale = 1f
+    private var mWidth = 20f
+    private var mLastFocusX: Float? = null
+    private var mLastFocusY: Float? = null
+    private var mTouchCentreX = 0f
+    private var mTouchCentreY = 0f
+    private var points: ArrayList<PointF> = ArrayList<PointF>()
+
+    // 移动过程中临时变量
+    private var degree: Float = 0f
+
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) { //view绘制完成时 大小确定
         super.onSizeChanged(width, height, oldw, oldh)
 
@@ -75,11 +80,17 @@ class PaintView(context: Context?) :
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        points.clear();
+        for (i in 0..event.pointerCount - 1) {
+            points.add(PointF(event.getX(i), event.getY(i)))
+        }
+
         val consumed: Boolean = mTouchGestureDetector.onTouchEvent(event) // 由手势识别器处理手势
         return if (!consumed) {
             super.dispatchTouchEvent(event)
         } else true
     }
+
 
     override fun onDraw(canvas: Canvas) {
         canvas.scale(mScale, mScale)
@@ -91,16 +102,24 @@ class PaintView(context: Context?) :
             canvas.save()
             if (path != null) {
                 canvas.translate(path.mX + mTransX / mScale, path.mY + mTransY / mScale)
-            } // 根据涂鸦轨迹偏移值，偏移画布使其画在对应位置上
-            if (mSelectedPathItem === path) {
-                mPaint.color = Color.YELLOW // 点中的为黄色
-            } else {
-                mPaint.color = path!!.mColor
-            }
-            if (path != null) {
+                // 根据涂鸦轨迹偏移值，偏移画布使其画在对应位置上
+                // 点中的为黄色
+                if (mSelectedPathItem === path) mPaint.color = Color.YELLOW else mPaint.color = path.mColor
+                mPaint.strokeWidth = path.mWidth;
                 canvas.drawPath(path.mPath, mPaint)
             }
             canvas.restore()
+        }
+        for (point in points) {
+            val nPaint = Paint()
+            with(nPaint) {
+                color = Color.argb(100, 100, 100, 100)
+                style = Paint.Style.STROKE
+                strokeWidth = 64f
+                isAntiAlias = true
+                strokeCap = Paint.Cap.ROUND
+            }
+            canvas.drawPoint(point.x, point.y, nPaint)
         }
     }
 
@@ -109,13 +128,10 @@ class PaintView(context: Context?) :
      */
     class PathItem {
         var mPath = Path() // 涂鸦轨迹
-        var mColor = Color.RED;
+        var mColor = Color.RED
         var mX = 0f
         var mY = 0f // 轨迹偏移值
-    }
-
-    companion object {
-        private const val TAG = "AdvancedDoodleView"
+        var mWidth = 1f;
     }
 
     init {
@@ -145,7 +161,13 @@ class PaintView(context: Context?) :
                     override fun onScaleEnd(detector: ScaleGestureDetectorApi27?) {
                     }
 
+                    override fun onUpOrCancel(e: MotionEvent?) {
+                        points.clear();
+                        super.onUpOrCancel(e)
+                    }
+
                     override fun onScale(detector: ScaleGestureDetectorApi27): Boolean { // 双指缩放中
+
                         // 屏幕上的焦点
                         mTouchCentreX = detector.focusX
                         mTouchCentreY = detector.focusY
@@ -158,21 +180,34 @@ class PaintView(context: Context?) :
                             mTransY += dy
                         }
 
-                        if (abs(detector.scaleFactor) < 0.1f) {
-                            mScale = 0.1f
-                        } else {
-                            mScale *= detector.scaleFactor
-//                            mTransX -= toX(mTouchCentreX) * (detector.scaleFactor * detector.scaleFactor - 1)
-//                            mTransY -= toY(mTouchCentreY) * (detector.scaleFactor * detector.scaleFactor - 1)
-                        }
-
+//                        if (abs(detector.scaleFactor) < 0.1f) {
+//                            mScale = 0.1f
+//                        } else {
+//                            mScale *= detector.scaleFactor
+//                        }
+//
+////                        val radians = atan2(
+////                            detector.currentSpanY.toDouble(),
+////                            detector.currentSpanX.toDouble()
+////                        )
+////                        mRotation = mRotation + Math.toDegrees(radians).toFloat() - degree
+////                        if (mRotation > 360) {
+////                            mRotation -= 360
+////                        }
+////                        if (mRotation < -360) {
+////                            mRotation += 360
+////                        }
+//                        //mRotation = mRotation;
+//
+//
                         invalidate()
                         mLastFocusX = mTouchCentreX
                         mLastFocusY = mTouchCentreY
                         return true
                     }
 
-                    override fun onSingleTapUp(e: MotionEvent): Boolean { // 单击选中
+
+                    override fun onDoubleTap(e: MotionEvent): Boolean { // 选中
                         val x = toX(e.x)
                         val y = toY(e.y)
                         var found = false
@@ -205,7 +240,8 @@ class PaintView(context: Context?) :
                         val y = toY(e.y)
                         if (mSelectedPathItem == null) {
                             mCurrentPathItem = PathItem()// 新的涂鸦
-                            mCurrentPathItem!!.mColor = MainActivity.currentColor;
+                            mCurrentPathItem!!.mWidth = mWidth
+                            mCurrentPathItem!!.mColor = MainActivity.currentColor
                             mPathList.add(mCurrentPathItem) // 添加的集合中
                             mCurrentPathItem!!.mPath.moveTo(x, y)
                         }
@@ -270,6 +306,4 @@ class PaintView(context: Context?) :
         mTouchGestureDetector.setIsLongpressEnabled(false)
         mTouchGestureDetector.setIsScrollAfterScaled(false)
     }
-
-
 }

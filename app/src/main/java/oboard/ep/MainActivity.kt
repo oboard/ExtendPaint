@@ -1,13 +1,11 @@
 package oboard.ep
 
 import android.annotation.TargetApi
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -20,19 +18,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import oboard.ep.ColorPicker.OnColorSelectedListener
 import oboard.ep.databinding.BottomSheetBinding
 import oboard.ep.databinding.MainActivityBinding
 
-private lateinit var mainActivityBinding: MainActivityBinding
-private lateinit var bottomSheetBinding: BottomSheetBinding
 
 class MainActivity : AppCompatActivity(), Runnable {
     companion object {
         var currentColor: Int = Color.RED
     }
+
+    private lateinit var mainActivityBinding: MainActivityBinding
+    private lateinit var bottomSheetBinding: BottomSheetBinding
 
     //    private var mTargetDirection: Float = 0.0f
     private var mStopDrawing: Boolean = false
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), Runnable {
     //    private lateinit var mOrientationListener: MySensorEventListener
     //    private lateinit var mMagneticListener: MySensorEventListener
 
-    private lateinit var mGyroscopeListener: MySensorEventListener
+    private var mGyroscopeListener: MySensorEventListener? = null
 
     private val mHandler = Handler()
     private lateinit var doodleView: PaintView
@@ -60,13 +60,27 @@ class MainActivity : AppCompatActivity(), Runnable {
 //        }
     }
 
+    private lateinit var adapter: ColorHistoryAdapter
+    private var data = ArrayList<Int>()
+
+    private fun initData() {
+        repeat(2) {
+            data.add(Color.RED)
+            data.add(Color.GREEN)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mainActivityBinding = MainActivityBinding.inflate(layoutInflater)
-        bottomSheetBinding = BottomSheetBinding.bind(mainActivityBinding.coordinatorLayout1.getChildAt(0));
+        bottomSheetBinding = BottomSheetBinding.bind(
+            mainActivityBinding.coordinatorLayout1.getChildAt(
+                0
+            )
+        )
 //        setContentView(binding.root)
-        setContentView(mainActivityBinding.root);
+        setContentView(mainActivityBinding.root)
         getNotchParams()
 
 //        window.decorView.systemUiVisibility =
@@ -91,6 +105,17 @@ class MainActivity : AppCompatActivity(), Runnable {
         )
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+
+        //历史颜色
+        initData()
+        val manager = LinearLayoutManager(this)
+        manager.orientation = LinearLayoutManager.HORIZONTAL
+        //初始化适配器
+        adapter = ColorHistoryAdapter(this, data)
+        bottomSheetBinding.recycView.layoutManager = manager
+        bottomSheetBinding.recycView.adapter = adapter
+
 
 //
 //        payButton.setOnClickListener {
@@ -126,6 +151,7 @@ class MainActivity : AppCompatActivity(), Runnable {
 
         bottomSheetBinding.colorPicker.setOnColorSelectedListener(object : OnColorSelectedListener {
             fun set(red: Int, green: Int, blue: Int) {
+
                 var value = "红色：$red\t绿色：$green\t蓝色:$blue"
                 val color = Color.rgb(red, green, blue)
                 value += """
@@ -133,9 +159,6 @@ class MainActivity : AppCompatActivity(), Runnable {
              颜色值：0x${Integer.toHexString(color)}
              """.trimIndent()
                 bottomSheetBinding.colorValueTxt.text = value
-                currentColor = color
-                bottomSheetBinding.colorIndicator.setImageDrawable(ColorDrawable(color))
-                bottomSheetBinding.colorIndicator.shape = 2
             }
 
             override fun onColorSelecting(red: Int, green: Int, blue: Int) {
@@ -144,6 +167,25 @@ class MainActivity : AppCompatActivity(), Runnable {
 
             override fun onColorSelected(red: Int, green: Int, blue: Int) {
                 set(red, green, blue)
+                var value = "红色：$red\t绿色：$green\t蓝色:$blue"
+                val color = Color.rgb(red, green, blue)
+                value += """
+             
+             颜色值：0x${Integer.toHexString(color)}
+             """.trimIndent()
+                bottomSheetBinding.colorValueTxt.text = value
+                currentColor = color
+                val circleDrawable = CircleDrawable(
+                    bottomSheetBinding.colorIndicator.layoutParams.width,
+                    bottomSheetBinding.colorIndicator.layoutParams.height
+                )
+                circleDrawable.setColor(color)
+                bottomSheetBinding.colorIndicator.background = circleDrawable
+
+                //历史颜色
+                data.add(0, color)
+                adapter.notifyItemInserted(0)
+                bottomSheetBinding.recycView.scrollToPosition(0)
             }
         })
         val bottomSheetBehavior: BottomSheetBehavior<*> =
@@ -239,7 +281,7 @@ class MainActivity : AppCompatActivity(), Runnable {
 
 
     private fun initServices() {
-        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 //        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) //加速度传感器
 //        mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)   //地磁场传感器
         mGyroscopeSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)   //陀螺仪传感器
@@ -332,10 +374,6 @@ class MainActivity : AppCompatActivity(), Runnable {
                 return@Runnable
             }
             val displayCutout = rootWindowInsets.displayCutout
-            Log.e("TAG", "安全区域距离屏幕左边的距离 SafeInsetLeft:" + displayCutout?.safeInsetLeft)
-            Log.e("TAG", "安全区域距离屏幕右部的距离 SafeInsetRight:" + displayCutout?.safeInsetRight)
-            Log.e("TAG", "安全区域距离屏幕顶部的距离 SafeInsetTop:" + displayCutout?.safeInsetTop)
-            Log.e("TAG", "安全区域距离屏幕底部的距离 SafeInsetBottom:" + displayCutout?.safeInsetBottom)
             val rects: List<Rect>? = displayCutout?.boundingRects
             if (rects == null || rects.isEmpty()) {
                 Log.e("TAG", "不是刘海屏")
