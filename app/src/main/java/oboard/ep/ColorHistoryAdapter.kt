@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import oboard.ep.MainActivity.Companion.bottomSheetBinding
 
 class ColorHistoryAdapter(val context: Context, var data: List<Int>) :
     RecyclerView.Adapter<ColorHistoryAdapter.VH>() {
@@ -22,14 +23,17 @@ class ColorHistoryAdapter(val context: Context, var data: List<Int>) :
         vh.view.setOnClickListener {
             //拿到用户点击的位置
             val position = vh.adapterPosition
-            var fruit = data[position]
-            Toast.makeText(context, "你点击的了-》", Toast.LENGTH_SHORT).show()
+            val fruit = MainActivity.currentColor
+            MainActivity.changeColor(MainActivity.data[position])
+            MainActivity.currentColor = data[position]
+            MainActivity.data[position] = fruit
+            MainActivity.adapter.notifyItemChanged(position)
         }
         vh.view.setOnLongClickListener {
             //拿到用户点击的位置
             val position = vh.adapterPosition
-            var fruit = data[position]
-            Toast.makeText(context, "你长按了-》", Toast.LENGTH_SHORT).show()
+            MainActivity.data.remove(position)
+            MainActivity.adapter.notifyItemRemoved(position)
             true
         }
         return vh

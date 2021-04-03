@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.Icon
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -29,10 +30,23 @@ import oboard.ep.databinding.MainActivityBinding
 class MainActivity : AppCompatActivity(), Runnable {
     companion object {
         var currentColor: Int = Color.RED
-    }
+        var data = ArrayList<Int>()
+        var mLocked: Boolean = false;
+        lateinit var adapter: ColorHistoryAdapter
+        lateinit var mainActivityBinding: MainActivityBinding
+        lateinit var bottomSheetBinding: BottomSheetBinding
 
-    private lateinit var mainActivityBinding: MainActivityBinding
-    private lateinit var bottomSheetBinding: BottomSheetBinding
+        fun changeColor(color: Int) {
+            MainActivity.currentColor = color
+            val circleDrawable = CircleDrawable(
+                bottomSheetBinding.colorIndicator.layoutParams.width,
+                bottomSheetBinding.colorIndicator.layoutParams.height
+            )
+            circleDrawable.setColor(MainActivity.currentColor)
+            bottomSheetBinding.colorIndicator.background = circleDrawable
+        }
+
+    }
 
     //    private var mTargetDirection: Float = 0.0f
     private var mStopDrawing: Boolean = false
@@ -53,21 +67,20 @@ class MainActivity : AppCompatActivity(), Runnable {
     private lateinit var doodleView: PaintView
 
     override fun run() {
-//        if (mDrawPointer != null && !mStopDrawing) {
+        if (!mStopDrawing || !mLocked) {
 //            mDrawPointer.updateDirection(360 - mTargetDirection)
-        calculateOrientation()
-        mHandler.postDelayed(this, 20)
-//        }
+            calculateOrientation()
+            mHandler.postDelayed(this, 20)
+        }
     }
 
-    private lateinit var adapter: ColorHistoryAdapter
-    private var data = ArrayList<Int>()
 
     private fun initData() {
-        repeat(2) {
-            data.add(Color.RED)
-            data.add(Color.GREEN)
-        }
+        changeColor(Color.RED)
+//        repeat(2) {
+//            data.add(Color.RED)
+//            data.add(Color.GREEN)
+//        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,6 +156,37 @@ class MainActivity : AppCompatActivity(), Runnable {
             startActivity(intent)
         }
 
+        bottomSheetBinding.lockButton.setOnClickListener {
+            mLocked = !mLocked;
+
+            bottomSheetBinding.lockButton.run {
+                if (mLocked) {
+                    setImageIcon(
+                        Icon.createWithResource(
+                            applicationContext,
+                            R.drawable.ic_lock
+                        )
+                    )
+                } else {
+                    setImageIcon(
+                        Icon.createWithResource(
+                            applicationContext,
+                            R.drawable.ic_lock_open
+                        )
+                    )
+                }
+            };
+
+        }
+
+        bottomSheetBinding.donateButton.setOnClickListener {
+            val intent = Intent.parseUri(
+                "alipays://platformapi/startapp?saId=10000007&qrcode=https%3A%2F%2Fqr.alipay.com%2Ftsx00700h1zpzwoodysyhda",
+                Intent.URI_INTENT_SCHEME
+            );
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
 
         bottomSheetBinding.deleteButton.setOnClickListener {
             doodleView.mPathList.clear()
@@ -166,6 +210,11 @@ class MainActivity : AppCompatActivity(), Runnable {
             }
 
             override fun onColorSelected(red: Int, green: Int, blue: Int) {
+                //历史颜色
+                data.add(0, currentColor)
+                adapter.notifyItemInserted(0)
+                bottomSheetBinding.recycView.scrollToPosition(0)
+
                 set(red, green, blue)
                 var value = "红色：$red\t绿色：$green\t蓝色:$blue"
                 val color = Color.rgb(red, green, blue)
@@ -182,10 +231,6 @@ class MainActivity : AppCompatActivity(), Runnable {
                 circleDrawable.setColor(color)
                 bottomSheetBinding.colorIndicator.background = circleDrawable
 
-                //历史颜色
-                data.add(0, color)
-                adapter.notifyItemInserted(0)
-                bottomSheetBinding.recycView.scrollToPosition(0)
             }
         })
         val bottomSheetBehavior: BottomSheetBehavior<*> =
@@ -257,6 +302,7 @@ class MainActivity : AppCompatActivity(), Runnable {
     }
 
     private fun calculateOrientation() {
+        if (mLocked) return;
 //        val values = FloatArray(3)
 //        val rValues = FloatArray(9)
 //        SensorManager.getRotationMatrix(rValues, null, accelerometerValues, magneticFieldValues)

@@ -24,4 +24,5 @@
     <string name="draw_header">绘图</string>
     <string name="auto_save_title">自动保存</string>
     <string name="other_header">其他</string>
+    <string name="lock_button">Lock</string>
 </resources>
