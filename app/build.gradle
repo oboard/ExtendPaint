@@ -20,6 +20,11 @@ android {
         viewBinding true
     }
 
+    packagingOptions {
+        exclude 'classes.dex'
+        exclude '**.**'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,7 +32,6 @@ android {
         }
     }
 }
-
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
