@@ -9,17 +9,20 @@
     android:translationZ="24dp"
     android:overScrollMode="always"
     app:cardPreventCornerOverlap="true"
-    app:behavior_peekHeight="96dp"
+    app:behavior_peekHeight="152dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="498dp">
+        android:layout_height="wrap_content">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:requiresFadingEdge="horizontal"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="24dp"
             app:layout_constraintBottom_toBottomOf="@+id/color_indicator"
             app:layout_constraintEnd_toStartOf="@+id/lock_button"
             app:layout_constraintStart_toEndOf="@+id/color_indicator"
@@ -41,12 +44,13 @@
             android:id="@+id/lock_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/lock_button"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
             android:backgroundTint="@color/colorSecondary"
+            android:contentDescription="@string/lock_button"
             android:src="@drawable/ic_lock_open"
-            app:layout_constraintEnd_toStartOf="@+id/delete_button"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/delete_button" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/delete_button"
@@ -61,10 +65,10 @@
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/donate_button"
-            android:backgroundTint="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
+            android:backgroundTint="@color/colorAccent"
             android:contentDescription="@string/setting_button"
             android:text="@string/pay_button"
             app:icon="@drawable/ic_donate"
@@ -85,7 +89,7 @@
         <FrameLayout
             android:id="@+id/frameLayout"
             android:layout_width="match_parent"
-            android:layout_height="24dp"
+            android:layout_height="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -93,7 +97,7 @@
             <ImageView
                 android:layout_width="64dp"
                 android:layout_height="4dp"
-                android:layout_gravity="center"
+                android:layout_gravity="bottom|center"
                 android:contentDescription="bar"
                 android:src="@drawable/drop_bar"
                 tools:ignore="HardcodedText" />
@@ -103,11 +107,10 @@
             android:id="@+id/color_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.495"
+            android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/delete_button" />
+            app:layout_constraintTop_toBottomOf="@+id/lock_button" />
 
         <TextView
             android:id="@+id/color_value_txt"
@@ -117,6 +120,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/color_picker" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="265dp"
+            android:layout_height="18dp"
+            android:layout_marginTop="20dp"
+            android:max="10"
+            android:progress="2"
+            app:layout_constraintEnd_toStartOf="@+id/lock_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -3,6 +3,8 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 30
+//开启IR后端
+    kotlinOptions.useIR = true
 
     defaultConfig {
         applicationId "oboard.ep"

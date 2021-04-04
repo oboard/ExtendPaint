@@ -1,5 +1,6 @@
 package oboard.ep
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -18,6 +19,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -30,10 +32,17 @@ import oboard.ep.databinding.MainActivityBinding
 class MainActivity : AppCompatActivity(), Runnable {
     companion object {
         var currentColor: Int = Color.RED
+        var currentWidth: Float = 20f
         var data = ArrayList<Int>()
         var mLocked: Boolean = false;
+
+        @SuppressLint("StaticFieldLeak")
         lateinit var adapter: ColorHistoryAdapter
+
+        @SuppressLint("StaticFieldLeak")
         lateinit var mainActivityBinding: MainActivityBinding
+
+        @SuppressLint("StaticFieldLeak")
         lateinit var bottomSheetBinding: BottomSheetBinding
 
         fun changeColor(color: Int) {
@@ -178,7 +187,18 @@ class MainActivity : AppCompatActivity(), Runnable {
             };
 
         }
+        bottomSheetBinding.seekBar.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                currentWidth = progress.toFloat()*10
+            }
 
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+            }
+        })
         bottomSheetBinding.donateButton.setOnClickListener {
             val intent = Intent.parseUri(
                 "alipays://platformapi/startapp?saId=10000007&qrcode=https%3A%2F%2Fqr.alipay.com%2Ftsx00700h1zpzwoodysyhda",
@@ -190,6 +210,7 @@ class MainActivity : AppCompatActivity(), Runnable {
 
         bottomSheetBinding.deleteButton.setOnClickListener {
             doodleView.mPathList.clear()
+            doodleView.invalidate()
         }
 
 

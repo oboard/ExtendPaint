@@ -34,15 +34,11 @@ class PaintView(context: Context?) :
     var mTransX = 0f
     var mTransY = 0f
     private var mScale = 1f
-    private var mWidth = 20f
     private var mLastFocusX: Float? = null
     private var mLastFocusY: Float? = null
     private var mTouchCentreX = 0f
     private var mTouchCentreY = 0f
     private var points: ArrayList<PointF> = ArrayList<PointF>()
-
-    // 移动过程中临时变量
-    private var degree: Float = 0f
 
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) { //view绘制完成时 大小确定
         super.onSizeChanged(width, height, oldw, oldh)
@@ -80,8 +76,8 @@ class PaintView(context: Context?) :
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        points.clear();
-        for (i in 0..event.pointerCount - 1) {
+        points.clear()
+        for (i in 0 until event.pointerCount) {
             points.add(PointF(event.getX(i), event.getY(i)))
         }
 
@@ -105,7 +101,7 @@ class PaintView(context: Context?) :
                 // 根据涂鸦轨迹偏移值，偏移画布使其画在对应位置上
                 // 点中的为黄色
                 if (mSelectedPathItem === path) mPaint.color = Color.YELLOW else mPaint.color = path.mColor
-                mPaint.strokeWidth = path.mWidth;
+                mPaint.strokeWidth = path.mWidth
                 canvas.drawPath(path.mPath, mPaint)
             }
             canvas.restore()
@@ -131,7 +127,7 @@ class PaintView(context: Context?) :
         var mColor = Color.RED
         var mX = 0f
         var mY = 0f // 轨迹偏移值
-        var mWidth = 1f;
+        var mWidth = 1f
     }
 
     init {
@@ -162,7 +158,8 @@ class PaintView(context: Context?) :
                     }
 
                     override fun onUpOrCancel(e: MotionEvent?) {
-                        points.clear();
+                        points.clear()
+                        invalidate()
                         super.onUpOrCancel(e)
                     }
 
@@ -240,7 +237,7 @@ class PaintView(context: Context?) :
                         val y = toY(e.y)
                         if (mSelectedPathItem == null) {
                             mCurrentPathItem = PathItem()// 新的涂鸦
-                            mCurrentPathItem!!.mWidth = mWidth
+                            mCurrentPathItem!!.mWidth = MainActivity.currentWidth
                             mCurrentPathItem!!.mColor = MainActivity.currentColor
                             mPathList.add(mCurrentPathItem) // 添加的集合中
                             mCurrentPathItem!!.mPath.moveTo(x, y)

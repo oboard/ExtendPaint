@@ -1,26 +1,36 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/draw_header">
+        <PreferenceCategory app:title="帮助">
+            <Preference app:title="1.单指划线"/>
+            <Preference app:title="2.双指拖动画布"/>
+            <Preference app:title="3.双击线条之后可移动线条"/>
+            <Preference app:title="4.旋转手机移动画布"/>
+            <Preference app:title="5.上拉打开选择颜色"/>
+            <Preference app:title="6.点击颜色球进行颜色交换"/>
+        </PreferenceCategory>
 
-        <SwitchPreferenceCompat
-            app:key="auto_save"
-            app:title="@string/auto_save_title" />
 
-        <!--        <EditTextPreference-->
-        <!--            app:key="signature"-->
-        <!--            app:title="@string/signature_title"-->
-        <!--            app:useSimpleSummaryProvider="true" />-->
+<!--    <PreferenceCategory app:title="@string/draw_header">-->
 
-        <!--        <ListPreference-->
-        <!--            app:defaultValue="reply"-->
-        <!--            app:entries="@array/reply_entries"-->
-        <!--            app:entryValues="@array/reply_values"-->
-        <!--            app:key="reply"-->
-        <!--            app:title="@string/reply_title"-->
-        <!--            app:useSimpleSummaryProvider="true" />-->
+<!--&lt;!&ndash;        <SwitchPreferenceCompat&ndash;&gt;-->
+<!--&lt;!&ndash;            app:key="auto_save"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:title="@string/auto_save_title" />&ndash;&gt;-->
 
-    </PreferenceCategory>
+<!--        &lt;!&ndash;        <EditTextPreference&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:key="signature"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:title="@string/signature_title"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:useSimpleSummaryProvider="true" />&ndash;&gt;-->
+
+<!--        &lt;!&ndash;        <ListPreference&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:defaultValue="reply"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:entries="@array/reply_entries"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:entryValues="@array/reply_values"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:key="reply"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:title="@string/reply_title"&ndash;&gt;-->
+<!--        &lt;!&ndash;            app:useSimpleSummaryProvider="true" />&ndash;&gt;-->
+
+<!--    </PreferenceCategory>-->
 
     <PreferenceCategory app:title="@string/other_header">
         <PreferenceScreen app:title="@string/title_activity_about">

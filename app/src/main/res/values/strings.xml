@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">无限画板</string>
+    <string name="app_name">无限白板</string>
 
     <string name="doodle_clear_screen">清屏</string>
     <string name="doodle_cant_undo_after_clearing">清屏后不可撤销</string>
@@ -18,7 +18,7 @@
     <string name="doodle_edit_mode">编辑模式</string>
     <string name="menu_button">菜单</string>
     <string name="pay_button">捐赠</string>
-    <string name="about">关于：酷安@一块小板子 QQ：2232442466</string>
+    <string name="about">关于：酷安@一块小板子 QQ：2232442466\n无限白板是一款类似草稿的工具软件，快速绘制此刻的想法，而不是普通的作画软件；在没有纸笔时可以大大提升你的工作或学习效率！</string>
     <string name="delete_button">清空</string>
     <string name="setting_button">设置</string>
     <string name="title_activity_settings">设置</string>
